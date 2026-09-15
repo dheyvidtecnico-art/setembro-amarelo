@@ -1,1 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setembro Amarelo - Você é Importante</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #111;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            height: 100vh;
+            text-align: center;
+            overflow: hidden;
+        }
+        .header {
+            padding: 20px;
+            background: #ffcc00;
+            color: #000;
+            width: 100%;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .camera-container {
+            position: relative;
+            width: 85%;
+            max-width: 400px;
+            aspect-ratio: 3/4;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 4px solid #ffcc00;
+            box-shadow: 0 0 20px rgba(255, 204, 0, 0.4);
+            background: #000;
+            margin: auto;
+        }
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+        .footer {
+            padding: 20px;
+            font-size: 0.9rem;
+            color: #ccc;
+            width: 100%;
+        }
+        .cvv-box {
+            margin-top: 10px;
+            background: #222;
+            padding: 10px;
+            border-radius: 8px;
+            display: inline-block;
+            color: #ffcc00;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
 
+    <div class="header">
+        💛 Você é a pessoa mais importante para cuidar.
+    </div>
+
+    <div class="camera-container">
+        <video id="video" autoplay playsinline muted></video>
+    </div>
+
+    <div class="footer">
+        <p>Se você estiver passando por momentos difíceis, não hesite em pedir ajuda.</p>
+        <div class="cvv-box">
+            Ligue 188 (CVV) - Apoio Emocional
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+
+        navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "user" },
+            audio: false
+        })
+        .then(stream => {
+            video.srcObject = stream;
+        })
+        .catch(err => {
+            console.error("Erro ao acessar a câmera: ", err);
+            alert("Para ver essa mensagem especial, por favor, permita o uso da câmera.");
+        });
+    </script>
+
+</body>
+</html>
