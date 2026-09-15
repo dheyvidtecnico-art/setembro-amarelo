@@ -14,52 +14,101 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            height: 100vh;
+            justify-content: center;
+            min-height: 100vh;
             text-align: center;
-            overflow: hidden;
+            overflow-x: hidden;
         }
+
+        /* Cabeçalho */
         .header {
-            padding: 20px;
+            padding: 15px;
             background: #ffcc00;
             color: #000;
             width: 100%;
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 10;
         }
+
+        /* Estrutura Principal: Camera no centro, mensagens nas laterais */
+        .main-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100vh; /* Ocupa a altura total da tela */
+            padding-top: 60px; /* Espaço para o header fixo */
+            box-sizing: border-box;
+        }
+
+        /* Mensagens Laterais */
+        .side-message {
+            flex: 1;
+            padding: 20px;
+            font-size: 1.3rem;
+            line-height: 1.5;
+            color: #ffcc00; /* Cor amarela nas laterais */
+            font-style: italic;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            display: none; /* Escondido por padrão em telas muito pequenas */
+        }
+
+        @media (min-width: 800px) {
+            /* Mostra as mensagens apenas quando há espaço suficiente na tela */
+            .side-message {
+                display: block;
+            }
+        }
+
+        /* Container da Câmera (Central) */
         .camera-container {
             position: relative;
             width: 85%;
-            max-width: 400px;
+            max-width: 380px;
             aspect-ratio: 3/4;
             border-radius: 20px;
             overflow: hidden;
             border: 4px solid #ffcc00;
-            box-shadow: 0 0 20px rgba(255, 204, 0, 0.4);
+            box-shadow: 0 0 25px rgba(255, 204, 0, 0.5);
             background: #000;
-            margin: auto;
+            /* Centraliza verticalmente dentro do main-wrapper */
+            margin-top: -40px; 
         }
+
         video {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transform: scaleX(-1);
+            transform: scaleX(-1); /* Espelha a câmera */
         }
+
+        /* Rodapé (Apoio) */
         .footer {
-            padding: 20px;
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            padding: 10px;
             font-size: 0.9rem;
             color: #ccc;
-            width: 100%;
+            z-index: 5;
         }
+
         .cvv-box {
             margin-top: 10px;
             background: #222;
-            padding: 10px;
+            padding: 12px 20px;
             border-radius: 8px;
             display: inline-block;
             color: #ffcc00;
             font-weight: bold;
+            font-size: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
     </style>
 </head>
@@ -69,14 +118,30 @@
         💛 Você é a pessoa mais importante para cuidar.
     </div>
 
-    <div class="camera-container">
-        <video id="video" autoplay playsinline muted></video>
+    <!-- Área Principal que envolve as mensagens e a câmera -->
+    <div class="main-wrapper">
+        
+        <!-- Mensagem Lateral Esquerda -->
+        <div class="side-message">
+            Sua luz é necessária<br>neste mundo.
+        </div>
+
+        <!-- Container da Câmera (Reflexo) -->
+        <div class="camera-container">
+            <video id="video" autoplay playsinline muted></video>
+        </div>
+
+        <!-- Mensagem Lateral Direita -->
+        <div class="side-message">
+            Permita-se sentir<br>e pedir ajuda.
+        </div>
+
     </div>
 
     <div class="footer">
-        <p>Se você estiver passando por momentos difíceis, não hesite em pedir ajuda.</p>
+        <p>Apoio emocional e prevenção do suicídio.</p>
         <div class="cvv-box">
-            Ligue 188 (CVV) - Apoio Emocional
+            Ligue 188 (CVV)
         </div>
     </div>
 
