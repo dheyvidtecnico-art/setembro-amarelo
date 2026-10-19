@@ -1,0 +1,9 @@
+import os, zipfile
+src="/mnt/data/site_validacao_ose/index.html"
+assert os.path.exists(src)
+html=open(src,encoding="utf-8").read()
+# standalone source file for convenient opening/copying
+out="/mnt/data/codigo_painel_validacao_ose.txt"
+with open(out,"w",encoding="utf-8") as f: f.write(html)
+print("Arquivo pronto:", out, "caracteres:", len(html))
+
