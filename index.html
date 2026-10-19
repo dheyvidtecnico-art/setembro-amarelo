@@ -1,1 +1,87 @@
-
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel de Validação OSE</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<style>
+:root{--navy:#12304a;--blue:#1676b8;--cyan:#e9f5fc;--bg:#f4f7fb;--ink:#243447;--muted:#68788a;--border:#dce5ee}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--ink)}
+header{background:linear-gradient(120deg,#12304a,#176da5);color:white;padding:22px max(20px,calc((100% - 1400px)/2));display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+h1{font-size:24px;margin:0 0 5px}header p{margin:0;color:#d7e9f5;font-size:13px}
+main{max-width:1400px;margin:22px auto;padding:0 18px}
+.top-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+button,.upload-label{border:0;border-radius:8px;padding:11px 15px;cursor:pointer;font-weight:650;font-size:14px}
+.upload-label{background:#fff;color:var(--navy);display:inline-flex;align-items:center;gap:8px}
+button.tab{background:#e4ebf2;color:#40566b}button.tab.active{background:var(--blue);color:white}
+#fileInput{display:none}.filename{font-size:12px;color:#e5f2fa;max-width:260px;overflow-wrap:anywhere}
+.nav{display:flex;gap:8px;margin:18px 0}
+.panel{background:white;border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px;box-shadow:0 2px 8px #163b5510}
+.panel h2{font-size:16px;margin:0 0 14px}
+.filters{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:12px}
+label.field{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:var(--muted)}
+select,input{width:100%;padding:10px;border:1px solid #cbd8e4;border-radius:7px;background:white;color:var(--ink);font-size:14px;min-width:0}
+.filter-buttons{display:flex;align-items:end;gap:8px}.primary{background:var(--blue);color:white}.secondary{background:#eaf0f5;color:#334b60}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.metric{background:white;border:1px solid var(--border);border-radius:12px;padding:16px}.metric span{font-size:12px;color:var(--muted);display:block;margin-bottom:8px}.metric strong{font-size:25px;color:var(--navy)}
+.table-wrap{overflow:auto;max-height:62vh;border:1px solid var(--border);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:12px;white-space:nowrap}th{position:sticky;top:0;background:#eaf2f8;color:#25445d;text-align:left;z-index:1}
+td,th{padding:10px 12px;border-bottom:1px solid #e6edf3}tbody tr:hover{background:#f5faff}
+.charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.chart-panel{min-height:330px}.chart-panel canvas{width:100%;max-height:290px}
+.status{font-size:12px;color:var(--muted);margin:10px 0 0}.empty{padding:36px;text-align:center;color:var(--muted)}
+@media(max-width:850px){.filters{grid-template-columns:repeat(2,minmax(0,1fr))}.charts{grid-template-columns:1fr}}
+@media(max-width:520px){header{padding:18px}.filters,.metrics{grid-template-columns:1fr}h1{font-size:20px}.nav{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<header><div><h1>Painel de Validação OSE</h1><p>Consulta de produção, Status AS, SAP, prefixos e valores</p></div>
+<div class="top-actions"><label class="upload-label" for="fileInput">⬆ Anexar planilha Excel</label><input id="fileInput" type="file" accept=".xlsx,.xls,.csv"><span id="filename" class="filename">Nenhuma planilha carregada</span></div></header>
+<main>
+<div class="nav"><button class="tab active" data-view="tableView">Tabela de dados</button><button class="tab" data-view="chartsView">Gráficos</button></div>
+<section class="panel"><h2>Filtros</h2><div class="filters">
+<label class="field">Mês Produção<select id="monthFilter"><option value="">Todos os meses</option></select></label>
+<label class="field">Status AS<select id="statusFilter"><option value="">Todos os status</option></select></label>
+<label class="field">Prefixo<select id="prefixFilter"><option value="">Todos os prefixos</option></select></label>
+<label class="field">SAP contém<input id="sapFilter" type="search" placeholder="Digite o número SAP"></label>
+</div><div class="filter-buttons" style="margin-top:12px"><button class="primary" id="applyBtn">Aplicar filtros</button><button class="secondary" id="clearBtn">Limpar filtros</button></div><p id="statusMsg" class="status">Anexe uma planilha Excel para começar. O processamento acontece no seu navegador.</p></section>
+<section id="tableView">
+<div class="metrics"><div class="metric"><span>Registros encontrados</span><strong id="rowCount">0</strong></div><div class="metric"><span>SAP distintos</span><strong id="sapCount">0</strong></div><div class="metric"><span>Soma do Valor AS</span><strong id="valueSum">R$ 0,00</strong></div></div>
+<section class="panel"><h2>Dados filtrados</h2><div id="tableArea" class="table-wrap"><div class="empty">Anexe a planilha para visualizar os dados.</div></div></section>
+</section>
+<section id="chartsView" hidden>
+<div class="metrics"><div class="metric"><span>Registros encontrados</span><strong id="rowCount2">0</strong></div><div class="metric"><span>SAP distintos</span><strong id="sapCount2">0</strong></div><div class="metric"><span>Soma do Valor AS</span><strong id="valueSum2">R$ 0,00</strong></div></div>
+<div class="charts">
+<section class="panel chart-panel"><h2>SAP distintos por Status AS</h2><canvas id="statusChart"></canvas></section>
+<section class="panel chart-panel"><h2>Soma do Valor AS por Prefixo</h2><canvas id="valueChart"></canvas></section>
+<section class="panel chart-panel"><h2>SAP distintos por Prefixo</h2><canvas id="prefixChart"></canvas></section>
+</div></section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+const $=id=>document.getElementById(id); let allRows=[],filteredRows=[],charts={};
+const money=n=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(n||0);
+const norm=v=>v===null||v===undefined?'':String(v).trim();
+function get(row,key){const wanted=key.toLowerCase();const actual=Object.keys(row).find(k=>k.trim().toLowerCase()===wanted);return actual===undefined?'':row[actual]}
+function distinctCount(rows,key){return new Set(rows.map(r=>norm(get(r,key))).filter(Boolean)).size}
+function uniqueSorted(vals){return [...new Set(vals.map(norm).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR',{numeric:true}))}
+function fillSelect(id,values,first){const el=$(id),old=el.value;el.innerHTML='';el.add(new Option(first,''));uniqueSorted(values).forEach(v=>el.add(new Option(v,v)));if([...el.options].some(o=>o.value===old))el.value=old}
+function loadWorkbook(buffer,name){const wb=XLSX.read(buffer,{type:'array',cellDates:false});const ws=wb.Sheets[wb.SheetNames[0]];allRows=XLSX.utils.sheet_to_json(ws,{defval:'',raw:false});allRows=allRows.map(r=>{const o={};Object.keys(r).forEach(k=>o[k.trim()]=r[k]);return o});
+if(!allRows.length){$('statusMsg').textContent='A planilha não contém linhas de dados.';return}
+$('filename').textContent=name;fillSelect('monthFilter',allRows.map(r=>get(r,'Mês Produção')),'Todos os meses');fillSelect('statusFilter',allRows.map(r=>get(r,'Status AS')),'Todos os status');fillSelect('prefixFilter',allRows.map(r=>get(r,'Prefixo')),'Todos os prefixos');$('statusMsg').textContent=`Planilha carregada: ${allRows.length.toLocaleString('pt-BR')} registros. Use os filtros para explorar os dados.`;applyFilters()}
+$('fileInput').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{loadWorkbook(await f.arrayBuffer(),f.name)}catch(err){$('statusMsg').textContent='Não foi possível ler o arquivo. Verifique se é uma planilha Excel válida.';console.error(err)}});
+function applyFilters(){const m=$('monthFilter').value,s=$('statusFilter').value,p=$('prefixFilter').value,sap=$('sapFilter').value.trim().toLowerCase();
+filteredRows=allRows.filter(r=>(!m||norm(get(r,'Mês Produção'))===m)&&(!s||norm(get(r,'Status AS'))===s)&&(!p||norm(get(r,'Prefixo'))===p)&&(!sap||norm(get(r,'SAP')).toLowerCase().includes(sap)));
+renderSummary();renderTable();renderCharts()}
+function renderSummary(){const n=filteredRows.length,sc=distinctCount(filteredRows,'SAP'),sum=filteredRows.reduce((a,r)=>{let v=get(r,'Valor AS');if(typeof v==='string'){v=v.trim();if(v.includes(',')&&v.includes('.'))v=v.replace(/\./g,'').replace(',','.');else if(v.includes(','))v=v.replace(',','.')}return a+(Number(v)||0)},0);
+['rowCount','rowCount2'].forEach(id=>$(id).textContent=n.toLocaleString('pt-BR'));['sapCount','sapCount2'].forEach(id=>$(id).textContent=sc.toLocaleString('pt-BR'));['valueSum','valueSum2'].forEach(id=>$(id).textContent=money(sum))}
+function renderTable(){if(!filteredRows.length){$('tableArea').innerHTML='<div class="empty">Nenhum registro encontrado para os filtros selecionados.</div>';return}
+const cols=Object.keys(allRows[0]);const esc=v=>norm(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+$('tableArea').innerHTML='<table><thead><tr>'+cols.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+filteredRows.map(r=>'<tr>'+cols.map(c=>'<td>'+esc(r[c])+'</td>').join('')+'</tr>').join('')+'</tbody></table>'}
+function group(rows,groupKey,valueKey,mode){const map=new Map();rows.forEach(r=>{const label=norm(get(r,groupKey))||'(Sem informação)';if(!map.has(label))map.set(label,mode==='sum'?0:new Set());if(mode==='sum'){let v=get(r,valueKey);if(typeof v==='string'){v=v.trim();if(v.includes(',')&&v.includes('.'))v=v.replace(/\./g,'').replace(',','.');else if(v.includes(','))v=v.replace(',','.')}map.set(label,map.get(label)+(Number(v)||0))}else{const val=norm(get(r,valueKey));if(val)map.get(label).add(val)}});return [...map.entries()].map(([label,v])=>({label,value:mode==='sum'?v:v.size})).sort((a,b)=>b.value-a.value)}
+function draw(id,label,data,color){if(charts[id])charts[id].destroy();charts[id]=new Chart($(id),{type:'bar',data:{labels:data.map(d=>d.label),datasets:[{label,data:data.map(d=>d.value),backgroundColor:color,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{x:{ticks:{maxRotation:55,minRotation:0}},y:{beginAtZero:true,ticks:{precision:0}}}}})}
+function renderCharts(){if(!window.Chart)return;draw('statusChart','SAP distintos',group(filteredRows,'Status AS','SAP','distinct'),'#1676b8');draw('valueChart','Soma do Valor AS',group(filteredRows,'Prefixo','Valor AS','sum'),'#20a486');draw('prefixChart','SAP distintos',group(filteredRows,'Prefixo','SAP','distinct'),'#e3a13a')}
+$('applyBtn').addEventListener('click',applyFilters);$('clearBtn').addEventListener('click',()=>{$('monthFilter').value='';$('statusFilter').value='';$('prefixFilter').value='';$('sapFilter').value='';applyFilters()});
+document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b===btn));$('tableView').hidden=btn.dataset.view!=='tableView';$('chartsView').hidden=btn.dataset.view!=='chartsView';if(!$('chartsView').hidden)renderCharts()}));
+</script>
+</body></html>
